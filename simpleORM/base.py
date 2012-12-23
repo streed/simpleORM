@@ -2,33 +2,51 @@ from simpleORM.connection import Connection
 from simpleORM.builder import Builder
 
 class _MetaSimpleDB( type ):
+
+
+	"""
+		This method sets the fields found in the _fields attribute of the class to None
+	"""
 	def __init__( cls, name, bases, _dict ):
-		#Get the fields from the `cls`
 		if "_fields" in _dict:
 			fields = cls._fields
 			
-			#insert all the fields into the _dict
 			for f in fields:
-				setattr( cls, f, None )
+				setattr( cls, "__%s_%s" % ( cls.__class__.__name__, f ), None )	 
+
+				def getter( self ):
+					value = self.__dict__["__%s_%s" % ( cls.__class__.__name__, f )]
+					return value
+				
+				def setter( self, value ):
+					self.__dict__["__%s_%s" % ( cls.__class__.__name__, f )] = value
+
+				setattr( cls, f, property( fget=getter, fset=setter ) )
+
 		else:
 			raise TypeError( "A subclass of simpleORM.Base must have a `_fields` attribute." )
 
 		super( _MetaSimpleDB, cls ).__init__( name, bases, _dict )
 
+
+	"""
+		This will add all the find_by_* methods to the class, for those attributes found in the _fields attribute.
+	"""
 	def __new__( cls, name, bases, _dict ):
 		instance = super( _MetaSimpleDB, cls ).__new__( cls, name, bases, _dict )
 
+
+		#Create the find_by_*
 		for f in instance._fields:
 			query = "`%s` = '%%s'" % f
 
-			def find_by( self, val, __query=query ):
-				return self().where( __query % val  )
+			def find_by( self, val ):
+				return self().where( query % val  )
 
 			setattr( instance, "find_by_%s" % f, find_by )
-
-			#Add the getters/setters/
-
+	
 		return instance
+
 
 class Base( object ):
 
@@ -50,6 +68,16 @@ class Base( object ):
 	def __init__( self ):
 		self._item = self._connection.new_item( self._domain )
 		self._deleted = False
+
+	@classmethod
+	def create_domain( cls ):
+		dom = cls._connection.create_domain( cls._domain )
+
+		if dom:
+			cls._connection._domains[dom.name] = dom
+			return True
+		else:
+			return False
 
 
 	def delete( self ):

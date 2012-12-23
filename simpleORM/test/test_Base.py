@@ -25,6 +25,8 @@ def test_that_TypeError_is_not_thrown():
 def test_that_each_of_the_fields_becomes_an_attribute():
 	test = TestORM()
 
+	print dir( test )
+
 	assert_equals( True, hasattr( test, "this" ) )
 	assert_equals( True, hasattr( test, "is" ) )
 	assert_equals( True, hasattr( test, "a" ) )
