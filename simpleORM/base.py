@@ -42,6 +42,10 @@ class Base( object ):
 	_fields = []
 	_domain = ""
 
+	#Default consistency is "evententually_consistent" = False
+	#Override this to get change the behavior
+	_consistency = False
+
 
 	def __init__( self ):
 		self._item = self._connection.new_item( self._domain )
@@ -67,7 +71,7 @@ class Base( object ):
 			PRE: This is called to execute a query directly.
 			POST: An iterator is returned from this that will return the data.
 		"""
-		return self._connection.get_domain( self._domain ).select( query )
+		return self._connection.get_domain( self._domain ).select( query, consistent_read=self._consistency )
 
 	#Wrapper to Builder
 	def select( self, outputs ):

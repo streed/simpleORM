@@ -1,7 +1,8 @@
 
 class Builder( object ):
 
-	_hooks = []
+	_pre_hooks = []
+	_post_hooks = []
 
 	def __init__( self, obj ):
 		self._sql = ""
@@ -68,15 +69,21 @@ class Builder( object ):
 
 
 	def __enter__( self ):
-		self.__apply_pre_hooks()
+		self.__apply_pre_hooks( self.to_sql() )
 		return self._fetch()
 
 
 	def __exit__( self, _type, value, traceback ):
 		return self.__apply_post_hooks()
 
-	def __apply_pre_hooks( self ):
-		pass
+
+	def add_pre_hook( self, func ):
+		self._pre_hooks.append( func )
+
+
+	def __apply_pre_hooks( self, sql ):
+		for f in self._pre_hooks:
+			f( sql )
 
 	
 	def __apply_post_hooks( self ):
