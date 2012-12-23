@@ -45,11 +45,18 @@ def test_that_all_the_find_methods_are_created():
 	assert_equals( True, hasattr( test.find_by_a, "__call__" ))
 	assert_equals( True, hasattr( test.find_by_test, "__call__" ))
 
-	assert_equals( "select * from `test_domain` where `this` = 'test'", test.find_by_this( "test" ) )
+	assert_equals( "select * from `test_domain` where `this` = 'test'  limit 200", test.find_by_this( "test" ).to_sql() )
 
 def test_that_the_chaining_produces_proper_sql():
 	test = TestORM()
 
 	sql = test.select( ( "this", "is" ) ).where( "this = 'test'" ).order( "is", asc=False ).limit( 10 )
 
-	assert_equals( "select `this`,`is` from `test_domain` where this = 'test' order by is desc limit 10", sql._builder() )
+	assert_equals( "select `this`,`is` from `test_domain` where this = 'test' order by is desc limit 10", sql.to_sql() )
+
+
+def test_that_the_direct_call_to_Builder_from_Base_works_as_expected():
+	test = TestORM()
+
+	assert_equals( "select `this` from `test_domain` where '1' = '1'  limit 200", test.select( ( "this", ) ).to_sql() )
+

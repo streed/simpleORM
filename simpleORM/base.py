@@ -1,3 +1,5 @@
+from simpleORM.connection import Connection
+from simpleORM.builder import Builder
 
 class _MetaSimpleDB( type ):
 	def __init__( cls, name, bases, _dict ):
@@ -17,12 +19,14 @@ class _MetaSimpleDB( type ):
 		instance = super( _MetaSimpleDB, cls ).__new__( cls, name, bases, _dict )
 
 		for f in instance._fields:
-			query = "select * from `%s` where `%s` = '%%s'" % ( instance._domain, f )
+			query = "`%s` = '%%s'" % f
 
 			def find_by( self, val, __query=query ):
-				return self._execute( __query % val )
+				return self().where( __query % val  )
 
 			setattr( instance, "find_by_%s" % f, find_by )
+
+			#Add the getters/setters/
 
 		return instance
 
@@ -32,80 +36,57 @@ class Base( object ):
 	#This will also pull in the domain object so that this class can operate.
 	__metaclass__ = _MetaSimpleDB
 
+	_connection = Connection()
+
 
 	_fields = []
 	_domain = ""
 
 
 	def __init__( self ):
-		self._query = { 
-			"select": "select * from",
-			"where": " '1' = '1'",
-			"order": "",
-			"limit": "limit 200"
-		}
+		self._item = self._connection.new_item( self._domain )
+		self._deleted = False
 
-		pass
-
-	
-	def select( self, outputs ):
-		"""
-			PRE: The outputs is a tuple containing the columns to select from the domain
-			POST: This object is returned.
-		"""
-		_format = "select %s" % ( "`%s`," * len( outputs ) )
-		self._query["select"] = _format[0:-1] % outputs
-
-		return self
-
-
-	def where( self, where ):
-		"""
-			PRE: The where clause is written out and is a string.
-			POST: This object is returned.
-		"""
-		self._query["where"] = "where %s" % where
-
-		return self
-
-
-	def order( self, column, asc=True ):
-		"""
-			PRE: The order in which to return the data.
-			POST: This object is returned.
-		"""
-		if asc:
-			self._query["order"] = "order by %s asc" % column
-		else:
-			self._query["order"] = "order by %s desc" % column
-
-		return self
-
-
-	def limit( self, lim ):
-		"""
-			PRE: The lim is such that 0 < lim <= 2500
-			POST: This object is returned.
-		"""
-		self._query["limit"] = "limit %d" % lim
-
-		return self
 
 	def delete( self ):
 		"""
 			PRE: This will delete the row this object manages.
 			POST: If the item is deleted this will return True else False
 		"""
-		pass
+		if not self._deleted and self._connection.getself._domain( self._domain ).delete_item( self._item ):
+			self._deleted = True	
 
-	def _builder( self ):
-		q = self._query
+		return self._deleted
 
-		return "%s from `%s` %s %s %s" % ( q["select"], self._domain, q["where"], q["order"], q["limit"] )
+	def __call__( self ):
+		return Builder( self )
+
 
 	def _execute( self, query ):
 		"""
 			PRE: This is called to execute a query directly.
 			POST: An iterator is returned from this that will return the data.
 		"""
-		return query
+		return self._connection.get_domain( self._domain ).select( query )
+
+	#Wrapper to Builder
+	def select( self, outputs ):
+		return Builder( self ).select( outputs )
+
+	
+	#Wrapper to Builder
+	def where( self, where ):
+		return Builder( self ).where( where )
+
+
+	#Wrapper to Builder
+	def order( self, column, asc=True ):
+		return Builder( self ).order( column, asc=asc )
+
+
+	#Wrapper to Builder
+	def limit( self, lim ):
+		return Builder( self ).limit( lim )
+
+
+
