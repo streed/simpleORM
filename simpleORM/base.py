@@ -11,8 +11,6 @@ class _MetaSimpleDB( type ):
 		This will add all the find_by_* methods to the class, for those attributes found in the _fields attribute.
 	"""
 	def __new__( cls, name, bases, _dict ):
-		print "New"
-		#Create the find_by_*
 		temp = {}
 		for f in _dict:
 			if isinstance( _dict[f], RawColumn ):
@@ -24,8 +22,6 @@ class _MetaSimpleDB( type ):
 				temp["find_by_%s" % _dict[f].name] = find_by
 
 		_dict.update( temp )
-
-		print _dict
 
 		instance = super( _MetaSimpleDB, cls ).__new__( cls, name, bases, _dict )
 

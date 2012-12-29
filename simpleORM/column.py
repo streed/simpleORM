@@ -7,8 +7,10 @@ class ColumnConvertError( Exception ):
 	def __repr__( self ):
 		return repr( self.msg )
 
+
 class ColumnNoneDefinedError( Exception ):
 	pass
+
 
 class RawColumn( object ):
 
@@ -28,9 +30,17 @@ class StringColumn( RawColumn ):
 	def __init__( self, name, constraint=lambda v: True ):
 		super( RawColumn, self ).__init__( name, convert=str, constraint=constraint )
 
-class IntColumn( RawColumn ):
 
+class IntColumn( RawColumn ):
 	def __init__( self, name, constraint=lambda v: True ):
 		super( RawColumn, self ).__init__( name, convert=int, constraint=constraint )
 
 
+class ListColumn( RawColumn ):
+	def __init__( self, name, constraint=lambda v: True ):
+		super( RawColumn, self ).__init__( name, convert=list, constraint=constraint )
+
+
+class DictColumn( RawColumn ):
+	def __init__( self, name, constraint=lambda v: True ):
+		super( RawColumn, self ).__init__( name, convert=dict, constraint=constraint )
