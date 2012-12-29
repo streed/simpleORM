@@ -13,14 +13,19 @@ class _MetaSimpleDB( type ):
 	"""
 	def __new__( cls, name, bases, _dict ):
 		temp = {}
+		_has_columns = False
 		for f in _dict:
 			if isinstance( _dict[f], RawColumn ):
+				_has_columns = True
 				query = "`%s` = '%%s'" % _dict[f].name
 
 				def find_by( self, val, __query=query ):
 					return self._execute( self.where( __query % val  ).to_sql() )
 
 				temp["find_by_%s" % _dict[f].name] = find_by
+
+		if not _has_columns and name != "Base":
+			raise ColumnNoneDefinedError( "%s has no defined columns" % ( name ) )
 
 		_dict.update( temp )
 

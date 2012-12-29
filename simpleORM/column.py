@@ -5,7 +5,13 @@ class ColumnConvertError( Exception ):
 		self.msg = msg
 
 	def __repr__( self ):
+		print self.msg
 		return repr( self.msg )
+	def __str__( self ):
+		return self.__repr__()
+
+def ColumnFailContraintError( ColumnConvertError ):
+	pass
 
 
 class ColumnNoneDefinedError( Exception ):
@@ -21,9 +27,12 @@ class RawColumn( object ):
 
 	def convert( self, val ):
 		if self._constraint( val ):
-			return self._convert( val )
+			try:
+				return self._convert( val )
+			except ValueError as e:
+				raise ColumnConvertError( "Received Error converting column `%s` with `%s`" % ( self.name, e ) )
 		else:
-			raise ColumnConvertError( "Could not convert %s properly" % ( val ) )
+			raise ColumnFailContraintError( "Column %s: Constraint error given %s" % ( self.name, val ) )
 
 
 class StringColumn( RawColumn ):
