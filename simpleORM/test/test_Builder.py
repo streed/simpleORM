@@ -2,9 +2,10 @@ from nose.tools import assert_raises, assert_equals
 
 from simpleORM.base import Base
 from simpleORM.builder import Builder
+from simpleORM.column import RawColumn
 
 class FakeORM( Base ):
-	_fields = []
+	fake = RawColumn( "fake" )
 	_domain = "test_domain"
 
 def test_Builder_returns_default_sql_when_not_initialized():

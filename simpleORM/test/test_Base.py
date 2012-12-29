@@ -1,6 +1,8 @@
 from nose.tools import assert_raises, assert_equals
 
 from simpleORM.base import Base
+from simpleORM.column import RawColumn, ColumnNoneDefinedError
+
 def assert_not_raises( exception, func, *args, **kwargs ):
 	def closure( func, *args, **kwargs ):
 		try:
@@ -14,21 +16,16 @@ def assert_not_raises( exception, func, *args, **kwargs ):
 
 class TestORM( Base ):
 	
-	_fields = [ "this", "is", "a", "test" ]
+	this = RawColumn( "this" )
+	_is = RawColumn( "is" )
+	a = RawColumn( "a" )
+	test = RawColumn( "test" )
+
 	_domain = "test_domain"
 
 
 def test_that_TypeError_is_not_thrown():	
-	assert_not_raises( TypeError, TestORM )
-
-
-def test_that_each_of_the_fields_becomes_an_attribute():
-	test = TestORM()
-
-	assert_equals( True, hasattr( test, "this" ) )
-	assert_equals( True, hasattr( test, "is" ) )
-	assert_equals( True, hasattr( test, "a" ) )
-	assert_equals( True, hasattr( test, "test" ) )
+	assert_not_raises( ColumnNoneDefinedError, TestORM )
 
 
 def test_that_all_the_find_methods_are_created():

@@ -1,41 +1,10 @@
 from simpleORM.connection import Connection
-from uuid import uuid4
 from simpleORM.builder import Builder
+from simpleORM.column import RawColumn, ColumnNoneDefinedError
 
-
-class _ValueWrapper( object ):
-
-	def __init__( self, value=None ):
-		self.value = value
-		self._table = None
-
-	def get( self ):
-		return self.value
-
-	def set( self, value ):
-		self.value = value
-
-	def _set_table( self, table ):
-		self._table = table
-
-	def __eq__( self, other ):
-		return self.value == other.value and self._table == other._table
-
-	def __repr__( self ):
-		return "%s" % self.value
-
+from uuid import uuid4
 
 class _MetaSimpleDB( type ):
-
-
-	"""
-		This method sets the fields found in the _fields attribute of the class to None
-	"""
-	def __init__( cls, name, bases, _dict ):
-		if not "_fields" in _dict:
-			raise TypeError( "A subclass of simpleORM.Base must have a `_fields` attribute." )
-
-		super( _MetaSimpleDB, cls ).__init__( name, bases, _dict )
 
 
 	"""
@@ -43,25 +12,23 @@ class _MetaSimpleDB( type ):
 	"""
 	def __new__( cls, name, bases, _dict ):
 		print "New"
+		#Create the find_by_*
+		temp = {}
+		for f in _dict:
+			if isinstance( _dict[f], RawColumn ):
+				query = "`%s` = '%%s'" % _dict[f].name
+
+				def find_by( self, val, __query=query ):
+					return self.where( __query % val  )
+
+				temp["find_by_%s" % _dict[f].name] = find_by
+
+		_dict.update( temp )
+
+		print _dict
+
 		instance = super( _MetaSimpleDB, cls ).__new__( cls, name, bases, _dict )
 
-		#Create the find_by_*
-		for f in instance._fields:
-			query = "`%s` = '%%s'" % f
-
-			def find_by( self, val, __query=query ):
-				return self.where( __query % val  )
-
-			setattr( instance, "find_by_%s" % f, find_by )
-
-			
-			for f in instance._fields:
-				value = _ValueWrapper()
-				#setattr( instance, "__%s_%s" % ( cls.__class__.__name__, f ), value )
-				setattr( instance, f, None )
-
-				print id( value )
-	
 		return instance
 
 
@@ -73,8 +40,6 @@ class Base( object ):
 
 	_connection = Connection()
 
-
-	_fields = []
 	_domain = ""
 
 	#Default consistency is "evententually_consistent" = False
