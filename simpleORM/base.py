@@ -1,6 +1,7 @@
 from simpleORM.connection import Connection
 from simpleORM.builder import Builder
 from simpleORM.column import RawColumn, ColumnNoneDefinedError
+from simpleORM.row import RowConverter
 
 from uuid import uuid4
 
@@ -17,7 +18,7 @@ class _MetaSimpleDB( type ):
 				query = "`%s` = '%%s'" % _dict[f].name
 
 				def find_by( self, val, __query=query ):
-					return self.where( __query % val  )
+					return self._execute( self.where( __query % val  ).to_sql() )
 
 				temp["find_by_%s" % _dict[f].name] = find_by
 
@@ -47,6 +48,7 @@ class Base( object ):
 		self._item = self._connection.new_item( self._domain )
 		self._deleted = False
 		self._id = str( uuid4() )
+		self._converter = RowConverter( self )
 
 	def __hash__( self ):
 		return hash( self._id )
@@ -59,6 +61,7 @@ class Base( object ):
 			equal = equal and ( getattr( self, f ) == getattr( other, f ) )
 
 		return equal
+
 
 	@classmethod
 	def create_domain( cls ):
@@ -76,8 +79,8 @@ class Base( object ):
 			PRE: This will delete the row this object manages.
 			POST: If the item is deleted this will return True else False
 		"""
-		if not self._deleted and self._connection.getself._domain( self._domain ).delete_item( self._item ):
-			self._deleted = True	
+		if not self._deleted and self._connection.get_domain( self._domain ).delete_item( self._item ):
+			self._deleted = True
 
 		return self._deleted
 
@@ -90,7 +93,9 @@ class Base( object ):
 			PRE: This is called to execute a query directly.
 			POST: An iterator is returned from this that will return the data.
 		"""
-		return self._connection.get_domain( self._domain ).select( query, consistent_read=self._consistency )
+		self._item = self._converter._make_converter( self._connection.get_domain( self._domain ).select( query, consistent_read=self._consistency ) )
+
+		return self._item
 
 	#Wrapper to Builder
 	def select( self, outputs ):
