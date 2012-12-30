@@ -3,7 +3,7 @@ import boto
 from nose.tools import assert_equals,assert_true, with_setup
 
 from simpleORM.base import Base
-from simpleORM.column import IntColumn, StringColumn, ListColumn
+from simpleORM.column import IndexColumn, IntColumn, StringColumn, ListColumn
 from simpleORM.row import RowConverter
 
 def set_up():
@@ -25,7 +25,7 @@ def tear_down():
 
 
 class TestORM( Base ):
-	name = StringColumn( "name" )
+	name = IndexColumn( StringColumn( "name" ) )
 	age = IntColumn( "age" )
 	friends = ListColumn( "friends" )
 

@@ -1,6 +1,6 @@
 from simpleORM.connection import Connection
 from simpleORM.builder import Builder
-from simpleORM.column import RawColumn, ColumnNoneDefinedError
+from simpleORM.column import IndexColumn, RawColumn, ColumnNoneDefinedError
 from simpleORM.row import RowConverter
 
 from uuid import uuid4
@@ -15,6 +15,9 @@ class _MetaSimpleDB( type ):
 		temp = {}
 		_has_columns = False
 		for f in _dict:
+			if isinstance( _dict[f], IndexColumn ):
+				temp["index"] = f
+
 			if isinstance( _dict[f], RawColumn ):
 				_has_columns = True
 				query = "`%s` = '%%s'" % _dict[f].name

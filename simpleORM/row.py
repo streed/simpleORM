@@ -1,12 +1,17 @@
-from simpleORM.column import RawColumn
+from simpleORM.column import RawColumn, IndexColumn
 
 class RowConverter( object ):
 
 	def __init__( self, _self ):
 		self._columns = {}
+		self._index = None
 
 		for k in dir( _self ):
 			attr = getattr( _self, k )
+
+			if isinstance( attr, IndexColumn ):
+				self._index = k
+
 			if isinstance( attr, RawColumn ):
 				self._columns[k] = attr.convert
 
@@ -18,6 +23,9 @@ class RowConverter( object ):
 
 	def _convert_row( self, row ):
 		ret = {}	
+
+		if self._index:
+			ret["index"] = self._columns[self._index]( row[self._index] )
 
 		for k, v in row.iteritems():
 			ret[k] = self._columns[k]( v )

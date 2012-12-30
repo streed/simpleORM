@@ -34,6 +34,13 @@ class RawColumn( object ):
 		else:
 			raise ColumnFailContraintError( "Column %s: Constraint error given %s" % ( self.name, val ) )
 
+class IndexColumn( RawColumn ):
+	def __init__( self, column_type ):
+		self.name =column_type.name
+		self.column_type = column_type
+
+	def convert( self, val ):
+		return self.column_type.convert( val )
 
 class StringColumn( RawColumn ):
 	def __init__( self, name, constraint=lambda v: True ):

@@ -1,7 +1,7 @@
 from nose.tools import assert_raises, assert_equals
 
 from simpleORM.base import Base
-from simpleORM.column import RawColumn, ColumnNoneDefinedError
+from simpleORM.column import IndexColumn, RawColumn, ColumnNoneDefinedError
 
 def assert_not_raises( exception, func, *args, **kwargs ):
 	def closure( func, *args, **kwargs ):
@@ -16,7 +16,7 @@ def assert_not_raises( exception, func, *args, **kwargs ):
 
 class TestORM( Base ):
 	
-	this = RawColumn( "this" )
+	this = IndexColumn( RawColumn( "this" ) )
 	_is = RawColumn( "is" )
 	a = RawColumn( "a" )
 	test = RawColumn( "test" )
@@ -57,3 +57,7 @@ def test_that_the_direct_call_to_Builder_from_Base_works_as_expected():
 
 	assert_equals( "select `this` from `test_domain` where '1' = '1'  limit 200", test.select( ( "this", ) ).to_sql() )
 
+def test_that_the_proper_index_is_set_on_the_model():
+	test = TestORM()
+
+	assert_equals( "this", test.index )

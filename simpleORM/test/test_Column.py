@@ -1,6 +1,6 @@
 from nose.tools import assert_equals, assert_raises, assert_true
 
-from simpleORM.column import RawColumn, StringColumn, IntColumn, ListColumn, DictColumn
+from simpleORM.column import RawColumn, StringColumn, IntColumn, ListColumn, DictColumn, IndexColumn
 from simpleORM.column import ColumnConvertError, ColumnNoneDefinedError
 from simpleORM.base import Base
 
@@ -16,8 +16,8 @@ def assert_not_raises( exception, func, *args, **kwargs ):
 	closure( func, *args, **kwargs )
 
 class TestORM( Base ):
-	name = StringColumn( "name" )
-	age = StringColumn( "age" )
+	name = IndexColumn( StringColumn( "name" ) )
+	age = IntColumn( "age" )
 	_domain = "test_domain"
 
 def test_Column_does_not_throw_exception():
@@ -38,3 +38,5 @@ def test_IntColumn_converts_properly():
 
 	assert_equals( ret, 123 )
 	assert_true( isinstance( ret, int ) )
+
+
