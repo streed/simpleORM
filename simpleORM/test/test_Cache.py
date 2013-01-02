@@ -37,4 +37,4 @@ def test_cache_choose_works_correctly():
 
 	cache.put( 10, 10 )
 
-	print cache._collection
+	assert( True )
