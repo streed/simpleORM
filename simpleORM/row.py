@@ -1,7 +1,23 @@
 from simpleORM.column import RawColumn, IndexColumn
 
 class RowConverter( object ):
+	"""
+		RowConverter will allow make sure that the returned data will be in the proper data type
+		for use in other parts of the application.
 
+		This class is passed the current object with `Column` objects. When this class is
+		instantiated it will loop through the current object's dictionary and save the 
+		name and the `_convert` method from each of the columns.
+
+		When the `_make_converter` method is called it will yeild through the current results after
+		attempting to convert each of the values to the proper column data type.
+
+		If the `_convert_row` fails to convert the proper exception is thrown and the conversion
+		process is stopped. 
+
+		The return value from the `_convert_row` will be a NamedTuple that will allow for simple
+		attribute access to each of the corrosponding column data.
+	"""
 	def __init__( self, _self ):
 		self._columns = {}
 		self._index = None
