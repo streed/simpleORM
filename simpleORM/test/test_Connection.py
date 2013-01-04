@@ -1,3 +1,3 @@
-from simpleORM.connection import Connection
+#from simpleORM.connection import Connection
 
 
