@@ -1,3 +1,4 @@
+from collections import namedtuple
 from simpleORM.column import RawColumn, IndexColumn
 
 class RowConverter( object ):
@@ -31,6 +32,12 @@ class RowConverter( object ):
 			if isinstance( attr, RawColumn ):
 				self._columns[k] = attr.convert
 
+		if self._index:
+			keys = self._columns.keys() + [ "index" ]
+			self._tuple = namedtuple( _self.__class__.__name__, keys, rename=True )
+		else:
+			self._tuple = namedtuple( _self.__class__.__name__, self._columns.keys(), rename=True )
+
 
 	def _make_converter( self, results ):
 		for row in results:
@@ -46,5 +53,5 @@ class RowConverter( object ):
 		for k, v in row.iteritems():
 			ret[k] = self._columns[k]( v )
 
-		return ret
+		return self._tuple( **ret )
 		

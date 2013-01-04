@@ -47,10 +47,11 @@ def test_RowConverter_converts_the_values_correctly():
 
 	rs = list( rs )
 
-	assert_true( True, isinstance( rs[0]["age"], int ) )
-	assert_true( True, isinstance( rs[0]["name"], str ) )
-	assert_true( True, isinstance( rs[0]["friends"], list ) )
+	assert_true( True, isinstance( rs[0].age, int ) )
+	assert_true( True, isinstance( rs[0].name, str ) )
+	assert_true( True, isinstance( rs[0].friends, list ) )
 
-	assert_equals( 22, rs[0]["age"] )
-	assert_equals( "Sean", rs[0]["name"] )
-	assert_true( all( f in [ "David", "Melissa" ] for f in rs[0]["friends"] ) )
+	assert_equals( 22, rs[0].age )
+	assert_equals( "Sean", rs[0].name )
+	assert_true( all( f in [ "David", "Melissa" ] for f in rs[0].friends ) )
+
