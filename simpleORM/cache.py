@@ -5,7 +5,7 @@ class CacheKeyConflictError( Exception ):
 
 class Cache( object ):
 
-	def __init__( self, max_size=100, max_age=60000 ):
+	def __init__( self, max_size=100, max_age=60000, time_source=time.time ):
 		self._max_size = max_size
 		self._max_age = max_age
 
@@ -13,10 +13,14 @@ class Cache( object ):
 		self._cur_size = 0
 		self._hits = 0
 		self._misses = 0
+		self._time_source = time_source
 
 	@property
 	def size( self ):
 		return self._cur_size
+
+	def _get_time( self ):
+		return self._time_source()
 
 	def put( self, key, obj, replace=False ):
 
@@ -29,19 +33,19 @@ class Cache( object ):
 			if key in self._collection:
 				self._cur_size += 1
 
-			self._collection[key] = { "data": obj, "timestamp": time.time(), "accesses": 0 }
+			self._collection[key] = { "data": obj, "timestamp": self._get_time(), "accesses": 0 }
 		else:
 			if key in self._collection:
 				raise CacheKeyConflictError( "The Key `%s` already exists in the cache collection" % key )
 			else:
-				self._collection[key] = { "data": obj, "timestamp": time.time(), "accesses": 0 }
+				self._collection[key] = { "data": obj, "timestamp": self._get_time(), "accesses": 0 }
 				self._cur_size += 1
 
 	def get( self, key ):
 		obj = self._collection.get( key, None )
 
 		if obj:
-			obj["timestamp"] = time.time()
+			obj["timestamp"] = self._get_time()
 			obj["accesses"] += 1
 			return obj["data"]
 		else:
@@ -60,7 +64,7 @@ class LRUCache( Cache ):
 
 
 	def _choose( self ):
-		now = time.time()
+		now = self._get_time()
 
 		temp = sorted( [ ( k, now - v["timestamp"] ) for k, v in self._collection.iteritems() ], key=lambda v: v[1], reverse=True )
 
@@ -74,7 +78,7 @@ class MRUCache( Cache ):
 
 
 	def _choose( self ):
-		now = time.time()
+		now = self._get_time()
 
 		temp = sorted( [ ( k, now - v["timestamp"] ) for k, v in self._collection.iteritems() ], key=lambda v: v[1] )
 

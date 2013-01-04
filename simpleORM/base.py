@@ -38,7 +38,38 @@ class _MetaSimpleDB( type ):
 
 
 class Base( object ):
+	"""
+		Base model should be subclassed.
 
+		This model will perform the required actions to add in the `find_by_<column name>` methods.
+		
+		These models are tied to a specific simpleDB domain by defining a `_domain` class instance
+		to be the domain name. The class instance of the `_connection` will be used to query on this
+		domain.
+
+		To create a new object model for use in with the SimpleDB the following model is used.
+		
+		from simpleORM.column import IndexColumn, StringColumn, IntColumn
+		class TestObject( Base ):
+			name = IndexColumn( StringColumn( "name" ) )
+			age = IndexColumn( "age" )
+
+			_domain = "test_domain"
+
+
+		The above class will have the following methods added to the object on creation.
+
+			test.find_by_name()
+			test.find_by_age()
+
+		These methods will create the following query strings:
+
+			select * from `test_domain` where `name` = "<passed parameter>" limit 200
+			select * from `test_domain` where `age` = "<passed parameter>" limit 200
+
+		These queries will be sent to the `_execute` method and the result set is returned as
+		a `RowConverter`.
+	"""
 	#Let's perform some magic to add in some extra methods.
 	#This will also pull in the domain object so that this class can operate.
 	__metaclass__ = _MetaSimpleDB
@@ -73,6 +104,9 @@ class Base( object ):
 
 	@classmethod
 	def create_domain( cls ):
+		"""
+			This method will create the domain if it does not exist for the current `_connection`.
+		"""
 		dom = cls._connection.create_domain( cls._domain )
 
 		if dom:
@@ -84,8 +118,7 @@ class Base( object ):
 
 	def delete( self ):
 		"""
-			PRE: This will delete the row this object manages.
-			POST: If the item is deleted this will return True else False
+			This will delete the current row that this object points to.
 		"""
 		if not self._deleted and self._connection.get_domain( self._domain ).delete_item( self._item ):
 			self._deleted = True
@@ -98,8 +131,7 @@ class Base( object ):
 
 	def _execute( self, query ):
 		"""
-			PRE: This is called to execute a query directly.
-			POST: An iterator is returned from this that will return the data.
+			This will execute a Builder's sql query and pass it through the current `_converter`.
 		"""
 		self._item = self._converter._make_converter( self._connection.get_domain( self._domain ).select( query, consistent_read=self._consistency ) )
 
