@@ -22,7 +22,6 @@ def assert_not_raises( exception, func, *args, **kwargs ):
 class TestORM( Base ):
 	
 	this = IndexColumn( RawColumn( "this" ) )
-	_is = RawColumn( "is" )
 	a = RawColumn( "a" )
 	test = RawColumn( "test" )
 
@@ -38,12 +37,10 @@ def test_that_all_the_find_methods_are_created():
 	test = TestORM()
 
 	assert_equals( True, hasattr( test, "find_by_this" ) )
-	assert_equals( True, hasattr( test, "find_by_is" ) )
 	assert_equals( True, hasattr( test, "find_by_a" ) )
 	assert_equals( True, hasattr( test, "find_by_test" ) )
 
 	assert_equals( True, hasattr( test.find_by_this, "__call__" ))
-	assert_equals( True, hasattr( test.find_by_is, "__call__" ))
 	assert_equals( True, hasattr( test.find_by_a, "__call__" ))
 	assert_equals( True, hasattr( test.find_by_test, "__call__" ))
 
@@ -52,9 +49,9 @@ def test_that_all_the_find_methods_are_created():
 def test_that_the_chaining_produces_proper_sql():
 	test = TestORM()
 
-	sql = test.select( ( "this", "is" ) ).where( "this = 'test'" ).order( "is", asc=False ).limit( 10 )
+	sql = test.select( ( "this", ) ).where( "this = 'test'" ).order( "is", asc=False ).limit( 10 )
 
-	assert_equals( "select `this`,`is` from `test_domain` where this = 'test' order by is desc limit 10", sql.to_sql() )
+	assert_equals( "select `this` from `test_domain` where this = 'test' order by is desc limit 10", sql.to_sql() )
 
 
 def test_that_the_direct_call_to_Builder_from_Base_works_as_expected():
