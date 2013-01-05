@@ -8,6 +8,7 @@ from simpleORM.base import Base
 from simpleORM.column import IndexColumn, IntColumn, StringColumn, ListColumn
 from simpleORM.row import RowConverter
 
+"""
 def set_up():
 	conn = boto.connect_sdb()
 
@@ -24,7 +25,7 @@ def tear_down():
 
 	for r in rs:
 		dom.delete_item( r )
-
+"""
 
 class TestORM( Base ):
 	name = IndexColumn( StringColumn( "name" ) )
@@ -39,7 +40,7 @@ def test_RowConverter_pulls_the_proper_column_classes_out_of_a_Base_subclass():
 	
 	test = TestORM()
 
-
+"""
 @with_setup( set_up, tear_down )
 def test_RowConverter_converts_the_values_correctly():
 
@@ -55,5 +56,6 @@ def test_RowConverter_converts_the_values_correctly():
 
 	assert_equals( 22, rs[0].age )
 	assert_equals( "Sean", rs[0].name )
-	assert_true( all( f in [ "David", "Melissa" ] for f in rs[0].friends ) )
 
+	assert_true( all( f in [ "David", "Melissa" ] for f in rs[0].friends ) )
+"""
