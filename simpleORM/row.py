@@ -34,9 +34,9 @@ class RowConverter( object ):
 
 		if self._index:
 			keys = self._columns.keys() + [ "index" ]
-			self._tuple = namedtuple( _self.__class__.__name__, keys, rename=True )
+			self._tuple = namedtuple( _self.__class__.__name__, keys )#, rename=True )
 		else:
-			self._tuple = namedtuple( _self.__class__.__name__, self._columns.keys(), rename=True )
+			self._tuple = namedtuple( _self.__class__.__name__, self._columns.keys() )#, rename=True )
 
 
 	def _make_converter( self, results ):
