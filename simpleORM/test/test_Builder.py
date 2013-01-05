@@ -1,8 +1,15 @@
 from nose.tools import assert_raises, assert_equals
 
+from mocks import SimpleDBMockClass
+import boto
+boto.__dict__["connect_sdb"] = lambda: SimpleDBMockClass()
+
 from simpleORM.base import Base
 from simpleORM.builder import Builder
 from simpleORM.column import RawColumn
+
+import boto
+boto.__dict__["connect_sdb"] = lambda: SimpleDBMockClass()
 
 class FakeORM( Base ):
 	fake = RawColumn( "fake" )

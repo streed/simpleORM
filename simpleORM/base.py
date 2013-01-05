@@ -84,7 +84,7 @@ class Base( object ):
 
 
 	def __init__( self ):
-		self._item = self._connection.new_item( self._domain )
+		#self._item = self._connection.new_item( self._domain )
 		self._deleted = False
 		self._id = str( uuid4() )
 		self._converter = RowConverter( self )

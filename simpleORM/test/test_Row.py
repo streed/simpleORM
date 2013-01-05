@@ -1,4 +1,6 @@
+from mocks import SimpleDBMockClass
 import boto
+boto.__dict__["connect_sdb"] = lambda: SimpleDBMockClass( [ { "name": "Sean", "age": 22, "friends": [ "David", "Melissa" ] } ] )
 
 from nose.tools import assert_equals,assert_true, with_setup
 

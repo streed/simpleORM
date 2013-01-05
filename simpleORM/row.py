@@ -40,6 +40,7 @@ class RowConverter( object ):
 
 
 	def _make_converter( self, results ):
+		print results
 		for row in results:
 			yield self._convert_row( row )
 

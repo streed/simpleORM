@@ -1,8 +1,12 @@
 from nose.tools import assert_equals, assert_raises, assert_true
 
+from mocks import SimpleDBMockClass
+import boto
+boto.__dict__["connect_sdb"] = lambda: SimpleDBMockClass()
+
+from simpleORM.base import Base
 from simpleORM.column import RawColumn, StringColumn, IntColumn, ListColumn, DictColumn, IndexColumn
 from simpleORM.column import ColumnConvertError, ColumnNoneDefinedError
-from simpleORM.base import Base
 
 def assert_not_raises( exception, func, *args, **kwargs ):
 	def closure( func, *args, **kwargs ):

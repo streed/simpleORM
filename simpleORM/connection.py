@@ -8,6 +8,8 @@ class Connection( object ):
 	def __init__( self ):
 		doms = self._connection.get_all_domains()
 
+		print doms
+
 		for d in doms:
 			self._domains[d.name] = d
 
